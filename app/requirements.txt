@@ -1,0 +1,5 @@
+Flask==1.1.2
+celery==4.4.6
+redis==3.5.3
+path==15.0.0
+setproctitle==1.2.1
