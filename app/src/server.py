@@ -90,6 +90,8 @@ def hello_world():
         options['countdown'] = int(countdown)
     if serializer:
         options['serializer'] = serializer
+    if task_name == 'broadcast_task':
+        options['routing_key'] = 'broadcast_tasks'
 
     task_func.apply_async(kwargs=kwargs, **options)
 

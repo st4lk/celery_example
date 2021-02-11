@@ -32,7 +32,8 @@ def second_simple_task(*args, **kwargs):
     return 'Success second_simple_task'
 
 
-@app.task(rate_limit='1/m')
+# @app.task(rate_limit='1/m')
+@app.task(rate_limit='1/h')
 @task_with_wait_time
 def rate_limited_task(*args, **kwargs):
     return 'Success rate_limited_task'

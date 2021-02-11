@@ -17,6 +17,23 @@ Run
 
     ```bash
     DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 1 --without-heartbeat --prefetch-multiplier 1 -Q default,broadcast_tasks" make docker-worker-run
+
+    DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 1 --without-heartbeat --prefetch-multiplier 1 -Q default,advanced" make docker-worker-run
+
+    DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 2 -Ofair --without-heartbeat --prefetch-multiplier 1 -Q default" make docker-worker-run
+
+    DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 2 --without-heartbeat --prefetch-multiplier 1 -Q default" make docker-worker-run
+
+    DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 2 -O default --without-heartbeat -Q default" make docker-worker-run
+
+    DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 1 -O default --without-heartbeat -Q default" make docker-worker-run
+    DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 1 -O fair --without-heartbeat -Q default" make docker-worker-run
+    DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 1 -O fair --prefetch-multiplier 1 --without-heartbeat -Q default" make docker-worker-run
+
+    DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 1 -O fair -Q default" make docker-worker-run
+    DOCKER_WORKER_COUNT=2 CELERY_PARAMS="-c 1 -O fair -Q default" make docker-worker-run
+
+    DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 1 -E -Q default" make docker-worker-run
     ```
 
     Second worker (and so one, just increment `DOCKER_WORKER_COUNT`)

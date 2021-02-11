@@ -17,7 +17,11 @@ print('Redis broker is:', REDIS_BROKER)
 task_routes = {
     'tasks.critical.critical_task': {'queue': 'critical'},
     'tasks.advanced.*': {'queue': 'advanced'},
-    'tasks.broadcast.*': {'queue': 'broadcast_tasks', 'exchange': 'broadcast_tasks'},
+    'tasks.broadcast.broadcast_task': {
+        'queue': 'broadcast_tasks',
+        'exchange': 'broadcast_tasks',
+        'routing_key': 'broadcast_tasks',
+    },
 }
 
 app = Celery(
@@ -29,7 +33,7 @@ app = Celery(
 
 app.conf.task_queues = (
     Queue('dedicated'),
-    Broadcast('broadcast_tasks'),
+    Broadcast('broadcast_tasks', routing_key='broadcast_tasks'),
 )
 
 # Define result backend
@@ -42,8 +46,8 @@ app.conf.task_queues = (
 
 
 app.conf.broker_transport_options = {
-    # 'visibility_timeout': 5,  # in seconds
-    'visibility_timeout': 120,  # in seconds
+    'visibility_timeout': 10,  # in seconds
+    # 'visibility_timeout': 120,  # in seconds
     'queue_order_strategy': 'priority',
 }
 
