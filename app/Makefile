@@ -10,7 +10,7 @@ PIP ?= $(ENV)/bin/pip
 PROJECT_PATH ?= src
 CELERY_PARAMS ?=
 LOGS_PATH ?= /app/logs
-WORKER_NAME ?= worker-celery-redis
+WORKER_NAME ?= worker-celery
 
 export LC_ALL=en_US.utf-8
 export LANG=en_US.utf-8
@@ -25,6 +25,9 @@ install: .install
 
 run-worker: install
 	PYTHONPATH=$(PROJECT_PATH) $(CELERY) -A $(CELERY_APP) worker -l info $(CELERY_PARAMS)
+
+run-celery-beat: install
+	PYTHONPATH=$(PROJECT_PATH) $(CELERY) -A $(CELERY_APP) beat -l info $(CELERY_PARAMS)
 
 celery-command: install
 	PYTHONPATH=$(PROJECT_PATH) $(CELERY) -A $(CELERY_APP) $(CELERY_PARAMS)

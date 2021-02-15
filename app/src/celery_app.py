@@ -6,13 +6,36 @@ from kombu.common import Broadcast
 
 import settings  # NOQA
 
+CELERY_BROKER_NAME = os.getenv('CELERY_BROKER_NAME', 'redis')
+
 REDIS_HOST = os.getenv('REDIS_HOST')
 REDIS_PORT = os.getenv('REDIS_PORT')
 REDIS_DB = os.getenv('REDIS_DB', '0')
 
-REDIS_BROKER = f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
+RABBITMQ_HOST = os.getenv('RABBITMQ_HOST')
+RABBITMQ_PORT = os.getenv('RABBITMQ_PORT')
+RABBITMQ_DEFAULT_USER = os.getenv('RABBITMQ_DEFAULT_USER')
+RABBITMQ_DEFAULT_PASS = os.getenv('RABBITMQ_DEFAULT_PASS')
+RABBITMQ_DEFAULT_VHOST = os.getenv('RABBITMQ_DEFAULT_VHOST')
 
-print('Redis broker is:', REDIS_BROKER)
+CELERY_BROKER = None
+
+if CELERY_BROKER_NAME == 'redis':
+    CELERY_BROKER = f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
+elif CELERY_BROKER_NAME == 'rabbitmq':
+    # RMQ_CRED = f'{RABBITMQ_DEFAULT_USER}:{RABBITMQ_DEFAULT_PASS}'
+    # CELERY_BROKER = 'amqp://{RMQ_CRED}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/{RABBITMQ_HOSTNAME}'
+    CELERY_BROKER = 'amqp://{user}:{pwd}@{host}:{port}/{vhost}'.format(
+        user=RABBITMQ_DEFAULT_USER,
+        pwd=RABBITMQ_DEFAULT_PASS,
+        host=RABBITMQ_HOST,
+        port=RABBITMQ_PORT,
+        vhost=RABBITMQ_DEFAULT_VHOST,
+    )
+else:
+    raise NotImplementedError(f'Support for {CELERY_BROKER_NAME} broker is not implemented') 
+
+print('Broker is:', CELERY_BROKER)
 
 task_routes = {
     'tasks.critical.critical_task': {'queue': 'critical'},
@@ -26,7 +49,7 @@ task_routes = {
 
 app = Celery(
     'example-redis',
-    broker=REDIS_BROKER,
+    broker=CELERY_BROKER,
     # backend='amqp://',
     include=['tasks'],
  )
@@ -60,3 +83,13 @@ app.conf.update(
     # worker_prefetch_multiplier=1,
     task_send_sent_event=True,
 )
+
+# periodic tasks
+app.conf.beat_schedule = {
+    '5-seconds': {
+        'task': 'tasks.regular.simple_task',
+        'schedule': 5.0,
+        # 'args': (16, 16),
+        'kwargs': {'wait_time': 10},
+    },
+}

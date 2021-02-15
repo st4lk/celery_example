@@ -82,6 +82,7 @@ def hello_world():
     else:
         task_func = TASK_MAP[task_name]
     options = {}
+    # options = {'time_limit': 5, 'soft_time_limit': 2}
     if queue:
         options['queue'] = queue
     if priority:

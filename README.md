@@ -1,21 +1,28 @@
-Celery example with redis
-=========================
+Celery example
+==============
 
 Run
 ---
 
 ### Separate instances (manual docker launch)
 
-1. Run redis
+1. Run broker
 
     ```bash
     make docker-redis-run
     ```
 
+    OR
+
+    ```bash
+    make docker-rabbit-run
+    ```
 
 2. Run worker (consumer)
 
     ```bash
+    # ======== with Redis =============
+
     DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 1 --without-heartbeat --prefetch-multiplier 1 -Q default,broadcast_tasks" make docker-worker-run
 
     DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 1 --without-heartbeat --prefetch-multiplier 1 -Q default,advanced" make docker-worker-run
@@ -34,6 +41,12 @@ Run
     DOCKER_WORKER_COUNT=2 CELERY_PARAMS="-c 1 -O fair -Q default" make docker-worker-run
 
     DOCKER_WORKER_COUNT=1 CELERY_PARAMS="-c 1 -E -Q default" make docker-worker-run
+
+    # ======== with RabbitMQ =============
+    DOCKER_WORKER_COUNT=1 CELERY_BROKER_NAME="rabbitmq" CELERY_PARAMS="-c 1 -Q default" make docker-worker-run
+
+    DOCKER_WORKER_COUNT=1 CELERY_BROKER_NAME="rabbitmq" CELERY_PARAMS="-c 1 -O fair -Q default,broadcast_tasks" make docker-worker-run
+    DOCKER_WORKER_COUNT=1 CELERY_BROKER_NAME="rabbitmq" CELERY_PARAMS="-c 1 --prefetch-multiplier 1 -Q default,broadcast_tasks" make docker-worker-run
     ```
 
     Second worker (and so one, just increment `DOCKER_WORKER_COUNT`)
@@ -73,10 +86,20 @@ Run
     DOCKER_WORKER_COUNT=1 make docker-systemd-worker-stop
     ```
 
-3. Run server (producer)
+3. Run celery beat (optional)
 
     ```bash
+    make docker-celery-beat
+    ```
+
+4. Run server (producer)
+
+    ```bash
+    # with redis broker (by default)
     make docker-app-run
+
+    # with rabbitmq
+    make docker-app-run-rabbit
     ```
 
 Other commands
@@ -265,6 +288,37 @@ Other commands
     ```bash
     make docker-camera-monitor
     ```
+
+- Run shell (bash) for rabbitMQ node
+
+    ```bash
+    make docker-rabbit-shell
+    ```
+
+- Run rabbitmq admin
+
+    First, start rabbitmq itself
+
+    ```bash
+    make docker-rabbit-run
+    ```
+
+    In another terminal, connect to rabbitmq server and enable rabbitmq_management:
+    ```bash
+    make docker-rabbit-shell
+
+    # inside docker
+    rabbitmq-plugins enable rabbitmq_management
+    ```
+
+    Then on you host machine (use your own python):
+    ```bash
+    python rabbitmq/scripts/rabbitmqadmin help subcommands
+
+    python rabbitmq/scripts/rabbitmqadmin list queues
+
+    python rabbitmq/scripts/rabbitmqadmin list exchanges
+     ```
 
 Server (app, producer) examples
 -------------------------------
