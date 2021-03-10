@@ -49,7 +49,7 @@ Run
     DOCKER_WORKER_COUNT=1 CELERY_BROKER_NAME="rabbitmq" CELERY_PARAMS="-c 1 --prefetch-multiplier 1 -Q default,broadcast_tasks" make docker-worker-run
     ```
 
-    Second worker (and so one, just increment `DOCKER_WORKER_COUNT`)
+    Second worker (and so on, just increment `DOCKER_WORKER_COUNT`)
     ```bash
     DOCKER_WORKER_COUNT=2 CELERY_PARAMS="-c 1 --without-heartbeat -Q critical,broadcast_tasks" make docker-worker-run
     ```
